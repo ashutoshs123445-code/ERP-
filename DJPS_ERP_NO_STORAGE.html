@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJPS ERP — Divya Jyoti Public School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --navy:#0b1a2b; --navy2:#10233a; --gold:#d4af37; --gold2:#b8912c; --cream:#f5e7c1; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; font-family:'DM Sans',sans-serif; color:#fff; min-height:100vh;
+    background: radial-gradient(circle at 20% 20%, rgba(212,175,55,0.10), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(20,60,90,0.30), transparent 50%),
+                var(--navy);
+  }
+  .font-display{ font-family:'Playfair Display',serif; }
+  .hidden{ display:none !important; }
+  .glass{ background:rgba(255,255,255,0.05); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(212,175,55,0.20); border-radius:16px; }
+  .gold-btn{ background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--navy); font-weight:700; border:none; border-radius:10px; padding:13px; cursor:pointer; font-size:14px; }
+  .gold-btn:hover{ filter:brightness(1.08); }
+  input,select,textarea{ width:100%; padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; outline:none; margin-bottom:10px; font-family:inherit; font-size:14px; }
+  input::placeholder,textarea::placeholder{ color:rgba(255,255,255,0.3); }
+  select option{ color:#111; }
+  label.field-label{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.5); display:block; margin-bottom:4px; }
+  .container{ max-width:460px; margin:0 auto; padding:24px; }
+  .app-container{ max-width:820px; margin:0 auto; padding:0 0 60px; }
+  header.topbar{ display:flex; justify-content:space-between; align-items:center; padding:20px 24px; }
+  nav.menubar{ display:flex; gap:8px; flex-wrap:wrap; padding:0 24px 18px; }
+  .menu-btn{ background:transparent; border:1px solid rgba(255,255,255,0.15); color:#fff; padding:9px 16px; border-radius:10px; font-size:13px; cursor:pointer; width:auto; margin:0; }
+  .menu-btn.active{ background:rgba(212,175,55,0.18); border-color:var(--gold); color:var(--cream); }
+  main{ padding:0 24px; }
+  .clickable{ cursor:pointer; transition:transform .15s, border-color .15s; }
+  .clickable:active{ transform:scale(0.98); }
+  .clickable:hover{ border-color:rgba(212,175,55,0.5); }
+  .badge{ font-size:11px; padding:4px 10px; border-radius:999px; text-transform:capitalize; }
+  .badge-paid{ background:rgba(74,222,128,0.15); color:#86efac; }
+  .badge-due{ background:rgba(248,113,113,0.15); color:#fca5a5; }
+  .badge-partial{ background:rgba(250,204,21,0.15); color:#fde047; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
+  @media(min-width:640px){ .modal-backdrop{ align-items:center; } }
+  .modal-box{ background:var(--navy2); border:1px solid rgba(212,175,55,0.3); border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:24px; max-height:85vh; overflow-y:auto; }
+  @media(min-width:640px){ .modal-box{ border-radius:20px; } }
+  .card-item{ padding:14px; margin-bottom:10px; }
+  .msg{ font-size:13px; text-align:center; margin-top:8px; min-height:16px; }
+  .msg.ok{ color:#86efac; } .msg.err{ color:#fca5a5; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .stat-box{ text-align:center; padding:18px 8px; }
+  .stat-num{ font-size:30px; font-family:'Playfair Display',serif; color:var(--cream); }
+  .stat-label{ font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:14px; }
+  .row:last-child{ border-bottom:none; }
+  .sbtn-group{ display:flex; gap:6px; }
+  .sbtn{ padding:6px 10px; font-size:11px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#fff; cursor:pointer; width:auto; margin:0; }
+  .sbtn.sel-present{ background:rgba(74,222,128,0.2); border-color:#4ade80; color:#86efac; }
+  .sbtn.sel-absent{ background:rgba(248,113,113,0.2); border-color:#f87171; color:#fca5a5; }
+  .sbtn.sel-leave{ background:rgba(250,204,21,0.2); border-color:#facc15; color:#fde047; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  h3.section-title{ font-family:'Playfair Display',serif; color:var(--cream); margin:0 0 14px; font-size:18px; }
+  .muted-center{ color:rgba(255,255,255,0.4); font-size:13px; text-align:center; padding:16px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginView" class="container">
+  <div class="glass" style="padding:32px; margin-top:60px;">
+    <div style="text-align:center; margin-bottom:24px;">
+      <h1 class="font-display" style="color:var(--cream); font-size:22px; margin:0;">Divya Jyoti Public School</h1>
+      <p style="color:rgba(255,255,255,0.5); font-size:13px; margin-top:4px;">Institute ERP · Secure Login</p>
+    </div>
+    <label class="field-label">School Code</label>
+    <input id="schoolCode" value="DJPS" placeholder="School code">
+    <label class="field-label">Login ID</label>
+    <input id="loginId" placeholder="Your Login ID">
+    <label class="field-label">Password</label>
+    <input id="password" type="password" placeholder="••••••••">
+    <button id="loginBtn" class="gold-btn" style="width:100%;">Sign In</button>
+    <p id="loginMsg" class="msg err"></p>
+    <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.4); margin-top:14px;">
+      Setting up your school for the first time?
+      <a href="#" id="showAdminSignup" style="color:var(--gold); text-decoration:none;">Create Admin Account</a>
+    </p>
+  </div>
+</div>
+
+<!-- ===================== ADMIN SIGN UP ===================== -->
+<div id="adminSignupView" class="container hidden">
+  <div class="glass" style="padding:32px; margin-top:60px;">
+    <div style="text-align:center; margin-bottom:24px;">
+      <h1 class="font-display" style="color:var(--cream); font-size:22px; margin:0;">Create Admin Account</h1>
+      <p style="color:rgba(255,255,255,0.5); font-size:13px; margin-top:4px;">For first-time school setup</p>
+    </div>
+    <label class="field-label">School Code</label>
+    <input id="asSchoolCode" placeholder="e.g. DJPS">
+    <label class="field-label">Full Name</label>
+    <input id="asName" placeholder="Your full name">
+    <label class="field-label">Choose a Login ID</label>
+    <input id="asLoginId" placeholder="e.g. admin.rahul">
+    <label class="field-label">School Setup Code</label>
+    <input id="asSetupCode" placeholder="Choose one now / enter existing">
+    <p style="font-size:11px; color:rgba(255,255,255,0.4); margin:-6px 0 10px;">First admin for this school: choose a setup code and keep it safe — any future admin sign-ups for this school will need it too.</p>
+    <label class="field-label">Password</label>
+    <input id="asPass" type="password" placeholder="••••••••">
+    <label class="field-label">Confirm Password</label>
+    <input id="asPass2" type="password" placeholder="••••••••">
+    <button id="adminSignupBtn" class="gold-btn" style="width:100%;">Create Admin Account</button>
+    <p id="asMsg" class="msg"></p>
+    <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.4); margin-top:14px;">
+      Already have an account? <a href="#" id="showLoginFromSignup" style="color:var(--gold); text-decoration:none;">Back to Login</a>
+    </p>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="appView" class="app-container hidden">
+  <header class="topbar">
+    <div>
+      <h1 class="font-display" style="color:var(--cream); font-size:20px; margin:0;">DJPS ERP</h1>
+      <p id="whoami" style="font-size:12px; color:rgba(255,255,255,0.5); margin:2px 0 0;"></p>
+    </div>
+    <button id="logoutBtn" class="menu-btn">Logout</button>
+  </header>
+  <nav class="menubar" id="menuBar"></nav>
+  <main id="mainArea"></main>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div id="modalBackdrop" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 id="modalTitle" class="font-display" style="color:var(--cream); margin:0; font-size:17px;">Details</h3>
+      <button id="modalCloseBtn" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:22px; cursor:pointer; width:auto; margin:0;">&times;</button>
+    </div>
+    <div id="modalBody" style="font-size:14px;"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword, deleteUser
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where, orderBy, getDocs
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+// ---- Your real DJPS Firebase project (Firestore/Auth only; no Cloud Storage) ----
+const firebaseConfig = {
+  apiKey: "AIzaSyAGUfCCte3_jO3v_U0kICT9XZZ-BwtrnGg",
+  authDomain: "djps-school.firebaseapp.com",
+  projectId: "djps-school",
+  messagingSenderId: "30217206024",
+  appId: "1:30217206024:web:eec5a2eb43ddf4e248d4bd",
+  measurementId: "G-74PHSBXQTW"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Secondary app instance: lets Admin create student/teacher logins
+// without being logged out of their own session.
+const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+const secondaryAuth = getAuth(secondaryApp);
+
+const $ = id => document.getElementById(id);
+let profile = null;
+let classesCache = [];
+let cache = {}; // scratch space per section (assignments, fees, results, etc.)
+
+// ---------------- LOGIN ID <-> FIREBASE AUTH EMAIL ----------------
+// Firebase Auth needs an email, but students/teachers/admins sign in with a
+// plain Login ID instead. We deterministically map (schoolCode, loginId) to
+// a synthetic email so no lookup is needed before authenticating.
+function loginEmail(schoolCode, loginId) {
+  return `${loginId.trim().toLowerCase()}@${schoolCode.trim().toLowerCase()}.erp.local`;
+}
+function friendlyAuthError(e) {
+  const code = e?.code || '';
+  if (code.includes('email-already-in-use')) return 'This Login ID is already taken for this school. Choose another.';
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Invalid Login ID or password.';
+  if (code.includes('weak-password')) return 'Password must be at least 6 characters.';
+  return e.message || 'Something went wrong.';
+}
+const KIND_LABEL = { student: 'Student', teacher: 'Teacher', admin: 'Admin' };
+const KIND_CODE  = { student: 'STU', teacher: 'TCH', admin: 'ADM' };
+async function suggestLoginId(kind) {
+  const q = await getDocs(query(collection(db,'profiles'), where('role','==',kind), where('schoolCode','==',profile.schoolCode)));
+  return `${profile.schoolCode}-${KIND_CODE[kind]}-${String(q.size + 1).padStart(3,'0')}`;
+}
+
+// ---------------- MODAL ----------------
+function openModal(title, bodyHtml) {
+  $('modalTitle').textContent = title;
+  $('modalBody').innerHTML = bodyHtml;
+  $('modalBackdrop').classList.remove('hidden');
+}
+function closeModal() { $('modalBackdrop').classList.add('hidden'); }
+$('modalCloseBtn').onclick = closeModal;
+$('modalBackdrop').onclick = (e) => { if (e.target === $('modalBackdrop')) closeModal(); };
+
+// ---------------- LOGIN / LOGOUT ----------------
+$('loginBtn').onclick = async () => {
+  const schoolCode = $('schoolCode').value.trim().toUpperCase();
+  const loginId = $('loginId').value.trim();
+  const password = $('password').value;
+  $('loginMsg').textContent = '';
+  if (!schoolCode || !loginId || !password) { $('loginMsg').textContent = 'Enter school code, Login ID and password.'; return; }
+  try {
+    const cred = await signInWithEmailAndPassword(auth, loginEmail(schoolCode, loginId), password);
+    const snap = await getDoc(doc(db, 'profiles', cred.user.uid));
+    if (!snap.exists()) { await signOut(auth); throw new Error('Profile not found. Ask the school admin to set it up.'); }
+    const p = snap.data();
+    if (p.schoolCode !== schoolCode) { await signOut(auth); throw new Error('School code does not match this account.'); }
+    profile = { id: cred.user.uid, ...p };
+    enterApp();
+  } catch (e) {
+    $('loginMsg').textContent = friendlyAuthError(e);
+  }
+};
+
+$('logoutBtn').onclick = async () => {
+  await signOut(auth);
+  profile = null;
+  $('appView').classList.add('hidden');
+  $('loginView').classList.remove('hidden');
+};
+
+// ---------------- LOGIN <-> ADMIN SIGN UP VIEW TOGGLE ----------------
+$('showAdminSignup').onclick = (e) => {
+  e.preventDefault();
+  $('loginView').classList.add('hidden');
+  $('adminSignupView').classList.remove('hidden');
+};
+$('showLoginFromSignup').onclick = (e) => {
+  e.preventDefault();
+  $('adminSignupView').classList.add('hidden');
+  $('loginView').classList.remove('hidden');
+};
+
+// ---------------- ADMIN SIGN UP (first-time school setup) ----------------
+$('adminSignupBtn').onclick = async () => {
+  const schoolCode = $('asSchoolCode').value.trim().toUpperCase();
+  const name = $('asName').value.trim();
+  const loginId = $('asLoginId').value.trim();
+  const setupCode = $('asSetupCode').value.trim();
+  const pass = $('asPass').value;
+  const pass2 = $('asPass2').value;
+  const msgEl = $('asMsg');
+  msgEl.textContent = '';
+  if (!schoolCode || !name || !loginId || !setupCode || pass.length < 6) {
+    msgEl.textContent = 'Fill all fields; password must be 6+ characters.'; msgEl.className = 'msg err'; return;
+  }
+  if (pass !== pass2) { msgEl.textContent = 'Passwords do not match.'; msgEl.className = 'msg err'; return; }
+  let createdAuthUser = null;
+  try {
+    // Create the Auth account first. Firestore rules require an authenticated user.
+    const cred = await createUserWithEmailAndPassword(auth, loginEmail(schoolCode, loginId), pass);
+    createdAuthUser = cred.user;
+
+    const metaRef = doc(db, 'schoolMeta', schoolCode);
+    const metaSnap = await getDoc(metaRef);
+    if (metaSnap.exists()) {
+      if (metaSnap.data().setupCode !== setupCode) {
+        throw new Error('Setup code is incorrect for this school.');
+      }
+    } else {
+      if (setupCode.length < 4) throw new Error('Choose a setup code of at least 4 characters.');
+      await setDoc(metaRef, {
+        schoolCode, setupCode, ownerUid: cred.user.uid, createdAt: Date.now()
+      });
+    }
+
+    await setDoc(doc(db, 'profiles', cred.user.uid), {
+      fullName: name, loginId, role: 'admin', schoolCode, createdAt: Date.now()
+    });
+    profile = { id: cred.user.uid, fullName: name, loginId, role: 'admin', schoolCode };
+    $('adminSignupView').classList.add('hidden');
+    enterApp();
+  } catch (e) {
+    // If Firestore setup failed after Auth creation, remove the new Auth account
+    // so the user can retry with the same Login ID.
+    if (createdAuthUser) {
+      try { await deleteUser(createdAuthUser); } catch (_) { try { await signOut(auth); } catch (_) {} }
+    }
+    const code = e?.code || '';
+    msgEl.textContent = code.includes('permission-denied')
+      ? 'Firestore permission denied. Publish the included firestore.rules file first.'
+      : friendlyAuthError(e);
+    msgEl.className = 'msg err';
+  }
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (user && !profile) {
+    try {
+      const snap = await getDoc(doc(db, 'profiles', user.uid));
+      if (snap.exists()) { profile = { id: user.uid, ...snap.data() }; enterApp(); }
+    } catch (e) { /* not logged in via valid profile yet */ }
+  }
+});
+
+// ---------------- APP SHELL ----------------
+const MENUS = {
+  student: [['attendance','Attendance'],['assignments','Assignments'],['fees','Fees'],['results','Results']],
+  teacher: [['attendance','Attendance'],['assignments','Assignments'],['results','Results']],
+  admin:   [['overview','Overview'],['classes','Classes'],['students','Students'],['teachers','Teachers'],['admins','Admins'],['fees','Fee Structure']]
+};
+
+async function enterApp() {
+  $('loginView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('whoami').textContent = `${profile.fullName || profile.email} · ${profile.role[0].toUpperCase()+profile.role.slice(1)}`;
+
+  await loadClasses();
+
+  const menu = MENUS[profile.role] || [];
+  $('menuBar').innerHTML = menu.map(([key,label], i) =>
+    `<button class="menu-btn ${i===0?'active':''}" data-section="${key}">${label}</button>`
+  ).join('');
+  $('menuBar').querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchSection(btn.dataset.section));
+  });
+  switchSection(menu[0][0]);
+}
+
+async function loadClasses() {
+  const q = await getDocs(query(collection(db, 'classes'), where('schoolCode', '==', profile.schoolCode)));
+  classesCache = q.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function switchSection(key) {
+  $('menuBar').querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.section === key));
+  const renderers = {
+    attendance: profile.role === 'teacher' ? renderTeacherAttendance : renderStudentAttendance,
+    assignments: profile.role === 'teacher' ? renderTeacherAssignments : renderStudentAssignments,
+    results: profile.role === 'teacher' ? renderTeacherResults : renderStudentResults,
+    fees: profile.role === 'admin' ? renderAdminFees : renderStudentFees,
+    overview: renderAdminOverview,
+    classes: renderAdminClasses,
+    students: renderAdminStudents,
+    teachers: renderAdminTeachers,
+    admins: renderAdminAdmins
+  };
+  (renderers[key] || (() => { $('mainArea').innerHTML = ''; }))();
+}
+
+function classLabel(c) { return c ? `${c.className}${c.section ? '-' + c.section : ''}` : ''; }
+function classOptions() { return classesCache.map(c => `<option value="${c.id}">${classLabel(c)}</option>`).join(''); }
+
+// ================= STUDENT: ATTENDANCE =================
+async function renderStudentAttendance() {
+  $('mainArea').innerHTML = `
+    <div class="glass" style="padding:24px; text-align:center; margin-bottom:16px;">
+      <p style="color:rgba(255,255,255,0.5); font-size:13px;">Overall Attendance</p>
+      <p class="font-display" style="font-size:38px; color:var(--cream); margin-top:4px;" id="attPercent">—</p>
+    </div>
+    <div id="attHistory"></div>`;
+  const q = await getDocs(query(collection(db, 'attendance'), where('studentId', '==', profile.id), where('schoolCode', '==', profile.schoolCode)));
+  const rows = q.docs.map(d => d.data()).sort((a,b) => b.date.localeCompare(a.date));
+  if (!rows.length) { $('attPercent').textContent = 'No records'; return; }
+  const present = rows.filter(r => r.status === 'present').length;
+  $('attPercent').textContent = Math.round((present / rows.length) * 100) + '%';
+  $('attHistory').innerHTML = rows.slice(0, 20).map(r => `
+    <div class="glass card-item row">
+      <span>${r.date}</span>
+      <span class="status-${r.status}" style="text-transform:capitalize;">${r.status}</span>
+    </div>`).join('');
+}
+
+// ================= STUDENT: ASSIGNMENTS =================
+async function renderStudentAssignments() {
+  $('mainArea').innerHTML = `<div id="assignmentList"></div>`;
+  const q = await getDocs(query(collection(db, 'assignments'), where('classId', '==', profile.classId), where('schoolCode', '==', profile.schoolCode)));
+  cache.assignments = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
+
+  // check which ones this student already submitted
+  const subQ = await getDocs(query(collection(db, 'submissions'), where('studentId', '==', profile.id), where('schoolCode', '==', profile.schoolCode)));
+  const submitted = new Set(subQ.docs.map(d => d.data().assignmentId));
+
+  const list = $('assignmentList');
+  list.innerHTML = cache.assignments.map((a, i) => `
+    <div class="glass clickable card-item" data-idx="${i}" data-action="open-assignment">
+      <p style="font-weight:500;">${escapeHtml(a.title)}</p>
+      <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Due: ${a.dueDate || 'N/A'} ${submitted.has(a.id) ? '· <span style="color:#86efac;">Submitted</span>' : ''}</p>
+    </div>`).join('') || '<p class="muted-center">No assignments yet.</p>';
+
+  list.querySelectorAll('[data-action="open-assignment"]').forEach(el => {
+    el.addEventListener('click', () => openAssignmentModal(cache.assignments[+el.dataset.idx], submitted.has(cache.assignments[+el.dataset.idx].id)));
+  });
+}
+
+function openAssignmentModal(a, alreadySubmitted) {
+  openModal(a.title, `
+    <p style="color:rgba(255,255,255,0.7); line-height:1.5;">${escapeHtml(a.description || 'No description provided.')}</p>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Due date</span><span>${a.dueDate || 'N/A'}</span></div>
+    <div style="margin-top:16px;">
+      ${alreadySubmitted
+        ? `<p style="color:#86efac; text-align:center; font-size:13px;">You've already submitted this assignment.</p>`
+        : `<label class="field-label">Submission note (optional)</label>
+           <textarea id="submitText" placeholder="Write a short note about your work..." rows="4"></textarea>
+           <button id="submitBtn" class="gold-btn" style="width:100%;">Mark as Submitted</button>
+           <p id="submitMsg" class="msg"></p>`}
+    </div>
+  `);
+  if (!alreadySubmitted) {
+    $('submitBtn').onclick = async () => {
+      const submissionText = $('submitText').value.trim();
+      $('submitMsg').textContent = 'Submitting…'; $('submitMsg').className = 'msg';
+      try {
+        await setDoc(doc(db, 'submissions', `${a.id}_${profile.id}`), {
+          assignmentId: a.id, studentId: profile.id, classId: profile.classId,
+          schoolCode: profile.schoolCode, submissionText, submittedAt: Date.now()
+        });
+        $('submitMsg').textContent = 'Submitted ✓'; $('submitMsg').className = 'msg ok';
+        setTimeout(() => { closeModal(); renderStudentAssignments(); }, 700);
+      } catch (e) {
+        $('submitMsg').textContent = e.message || 'Submission failed.'; $('submitMsg').className = 'msg err';
+      }
+    };
+  }
+}
+
+// ================= STUDENT: FEES =================
+async function renderStudentFees() {
+  $('mainArea').innerHTML = `<div id="feeList"></div>`;
+  const q = await getDocs(query(collection(db, 'feePayments'), where('studentId', '==', profile.id), where('schoolCode', '==', profile.schoolCode)));
+  cache.fees = q.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const list = $('feeList');
+  list.innerHTML = cache.fees.map((f, i) => `
+    <div class="glass clickable card-item row" data-idx="${i}" data-action="open-fee">
+      <div><p style="font-weight:500;">${escapeHtml(f.head || 'Fee')}</p><p style="font-size:12px; color:rgba(255,255,255,0.5);">${f.term || ''} · ₹${f.amount ?? '-'}</p></div>
+      <span class="badge badge-${f.status}">${f.status}</span>
+    </div>`).join('') || '<p class="muted-center">No fee records yet.</p>';
+
+  list.querySelectorAll('[data-action="open-fee"]').forEach(el => {
+    el.addEventListener('click', () => openFeeModal(cache.fees[+el.dataset.idx]));
+  });
+}
+
+function openFeeModal(f) {
+  openModal(f.head || 'Fee Detail', `
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Term</span><span>${f.term || '-'}</span></div>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Amount</span><span>₹${f.amount ?? '-'}</span></div>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Amount Paid</span><span>₹${f.amountPaid ?? 0}</span></div>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Status</span><span class="badge badge-${f.status}">${f.status}</span></div>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Paid On</span><span>${f.paidOn || '-'}</span></div>
+    <div class="glass card-item row"><span style="color:rgba(255,255,255,0.5);">Receipt No.</span><span>${f.receiptNo || '-'}</span></div>
+  `);
+}
+
+// ================= STUDENT: RESULTS =================
+async function renderStudentResults() {
+  $('mainArea').innerHTML = `<div id="resultsList"></div>`;
+  const q = await getDocs(query(collection(db, 'results'), where('studentId', '==', profile.id), where('schoolCode', '==', profile.schoolCode)));
+  const rows = q.docs.map(d => d.data());
+  const grouped = {};
+  rows.forEach(r => { grouped[r.exam] = grouped[r.exam] || []; grouped[r.exam].push(r); });
+  cache.resultsGrouped = grouped;
+
+  const list = $('resultsList');
+  const exams = Object.keys(grouped);
+  list.innerHTML = exams.map(exam => {
+    const rs = grouped[exam];
+    const tot = rs.reduce((s,r)=>s+Number(r.marks||0),0), max = rs.reduce((s,r)=>s+Number(r.maxMarks||0),0);
+    const pct = max ? Math.round(tot/max*100) : 0;
+    return `<div class="glass clickable card-item" data-exam="${escapeAttr(exam)}" data-action="open-result">
+      <div class="row" style="border:none; padding:0;"><span class="font-display" style="color:var(--cream);">${escapeHtml(exam)}</span><span style="font-size:12px; color:rgba(255,255,255,0.5);">${pct}%</span></div>
+      <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px;">${rs.length} subject${rs.length>1?'s':''} · tap for details</p>
+    </div>`;
+  }).join('') || '<p class="muted-center">No results published yet.</p>';
+
+  list.querySelectorAll('[data-action="open-result"]').forEach(el => {
+    el.addEventListener('click', () => openResultModal(el.dataset.exam));
+  });
+}
+
+function openResultModal(exam) {
+  const rs = cache.resultsGrouped[exam] || [];
+  const tot = rs.reduce((s,r)=>s+Number(r.marks||0),0), max = rs.reduce((s,r)=>s+Number(r.maxMarks||0),0);
+  const pct = max ? Math.round(tot/max*100) : 0;
+  openModal(exam, `
+    ${rs.map(r => `<div class="glass card-item row"><span>${escapeHtml(r.subject)}</span><span>${r.marks} / ${r.maxMarks}</span></div>`).join('')}
+    <div class="glass card-item row" style="font-weight:600; border-top:1px solid rgba(255,255,255,0.1); margin-top:6px;"><span>Total</span><span>${tot} / ${max} (${pct}%)</span></div>
+  `);
+}
+
+// ================= TEACHER: ATTENDANCE =================
+async function renderTeacherAttendance() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="display:flex; align-items:center; gap:10px;">
+      <input id="attDate" type="date" style="margin:0; width:auto; flex:1;">
+      <button id="loadClassAtt" class="gold-btn" style="width:auto;">Load Class</button>
+    </div>
+    <div id="attList" style="margin-top:12px;"></div>
+    <button id="saveAttBtn" class="gold-btn" style="width:100%; margin-top:12px;">Save Attendance</button>
+    <p id="attMsg" class="msg"></p>`;
+  $('attDate').valueAsDate = new Date();
+  $('loadClassAtt').onclick = loadClassForAttendance;
+  $('saveAttBtn').onclick = saveTeacherAttendance;
+}
+
+async function getClassStudents() {
+  const q = await getDocs(query(collection(db, 'profiles'), where('role','==','student'), where('classId','==',profile.classId), where('schoolCode','==',profile.schoolCode)));
+  return q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.rollNo||'').localeCompare(b.rollNo||''));
+}
+
+async function loadClassForAttendance() {
+  const students = await getClassStudents();
+  cache.classStudents = students;
+  $('attList').innerHTML = students.map(s => `
+    <div class="glass card-item row" data-student="${s.id}">
+      <span>${s.rollNo || ''} · ${escapeHtml(s.fullName)}</span>
+      <div class="sbtn-group">
+        <button class="sbtn" data-status="present">Present</button>
+        <button class="sbtn" data-status="absent">Absent</button>
+        <button class="sbtn" data-status="leave">Leave</button>
+      </div>
+    </div>`).join('') || '<p class="muted-center">No students in your class.</p>';
+
+  $('attList').querySelectorAll('[data-student]').forEach(row => {
+    row.querySelectorAll('.sbtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.sbtn').forEach(b => b.classList.remove('sel-present','sel-absent','sel-leave'));
+        btn.classList.add(`sel-${btn.dataset.status}`);
+        row.dataset.selected = btn.dataset.status;
+      });
+    });
+  });
+}
+
+async function saveTeacherAttendance() {
+  const date = $('attDate').value;
+  const rows = [...document.querySelectorAll('[data-student]')].filter(r => r.dataset.selected);
+  if (!rows.length) return;
+  try {
+    await Promise.all(rows.map(row => {
+      const s = cache.classStudents.find(x => x.id === row.dataset.student);
+      return setDoc(doc(db, 'attendance', `${s.id}_${date}`), {
+        studentId: s.id, studentName: s.fullName, classId: profile.classId, schoolCode: profile.schoolCode,
+        date, status: row.dataset.selected, markedBy: profile.id, createdAt: Date.now()
+      });
+    }));
+    $('attMsg').textContent = 'Attendance saved ✓'; $('attMsg').className = 'msg ok';
+  } catch (e) { $('attMsg').textContent = e.message; $('attMsg').className = 'msg err'; }
+}
+
+// ================= TEACHER: ASSIGNMENTS =================
+async function renderTeacherAssignments() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="margin-bottom:16px;">
+      <h3 class="section-title" style="font-size:15px;">Upload New Assignment</h3>
+      <input id="asgTitle" placeholder="Title">
+      <textarea id="asgDesc" placeholder="Description" rows="3"></textarea>
+      <input id="asgDue" type="date">
+      <p class="muted-center" style="font-size:12px; margin:8px 0 0;">File attachments are disabled to keep this ERP on Firebase without Cloud Storage billing.</p>
+      <button id="asgUploadBtn" class="gold-btn" style="width:100%;">Create Assignment</button>
+      <p id="asgMsg" class="msg"></p>
+    </div>
+    <div id="teacherAsgList"></div>`;
+  $('asgUploadBtn').onclick = uploadTeacherAssignment;
+  loadTeacherAssignments();
+}
+
+async function uploadTeacherAssignment() {
+  const title = $('asgTitle').value.trim();
+  const description = $('asgDesc').value.trim();
+  const dueDate = $('asgDue').value;
+  const msgEl = $('asgMsg');
+  if (!title) { msgEl.textContent = 'Enter an assignment title.'; msgEl.className = 'msg err'; return; }
+  try {
+    await addDoc(collection(db, 'assignments'), {
+      title, description, dueDate, classId: profile.classId, schoolCode: profile.schoolCode,
+      teacherId: profile.id, createdAt: Date.now()
+    });
+    msgEl.textContent = 'Assignment created ✓'; msgEl.className = 'msg ok';
+    $('asgTitle').value = ''; $('asgDesc').value = ''; $('asgDue').value = '';
+    loadTeacherAssignments();
+  } catch (e) { msgEl.textContent = e.message || 'Could not create assignment.'; msgEl.className = 'msg err'; }
+}
+
+async function loadTeacherAssignments() {
+  const q = await getDocs(query(collection(db, 'assignments'), where('teacherId','==',profile.id), where('schoolCode','==',profile.schoolCode)));
+  cache.teacherAssignments = q.docs.map(d => ({ id: d.id, ...d.data() }));
+  const list = $('teacherAsgList');
+  list.innerHTML = cache.teacherAssignments.map((a,i) => `
+    <div class="glass clickable card-item" data-idx="${i}" data-action="open-submissions">
+      <p style="font-weight:500;">${escapeHtml(a.title)}</p>
+      <p style="font-size:12px; color:rgba(255,255,255,0.5);">Due: ${a.dueDate || 'N/A'} · tap to view submissions</p>
+    </div>`).join('') || '<p class="muted-center">No assignments uploaded yet.</p>';
+
+  list.querySelectorAll('[data-action="open-submissions"]').forEach(el => {
+    el.addEventListener('click', () => openSubmissionsModal(cache.teacherAssignments[+el.dataset.idx]));
+  });
+}
+
+async function openSubmissionsModal(a) {
+  openModal(a.title, `<p class="muted-center">Loading submissions…</p>`);
+  const [studentsQ, subsQ] = await Promise.all([
+    getDocs(query(collection(db,'profiles'), where('role','==','student'), where('classId','==',a.classId), where('schoolCode','==',profile.schoolCode))),
+    getDocs(query(collection(db,'submissions'), where('assignmentId','==',a.id)))
+  ]);
+  const students = studentsQ.docs.map(d => ({ id: d.id, ...d.data() }));
+  const subMap = {};
+  subsQ.docs.forEach(d => { subMap[d.data().studentId] = d.data(); });
+  const submittedCount = subsQ.docs.length;
+
+  const rows = students.map(s => {
+    const sub = subMap[s.id];
+    return `<div class="glass card-item row">
+      <span>${s.rollNo || ''} · ${escapeHtml(s.fullName)}</span>
+      ${sub ? `<span style="color:#86efac; font-size:12px;">Submitted</span>` : `<span style="color:rgba(255,255,255,0.3); font-size:12px;">Not submitted</span>`}
+    </div>`;
+  }).join('');
+
+  openModal(a.title, `<p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:8px;">${submittedCount} of ${students.length} students submitted</p>${rows || '<p class="muted-center">No students found.</p>'}`);
+}
+
+// ================= TEACHER: RESULTS =================
+async function renderTeacherResults() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="margin-bottom:16px;">
+      <input id="resExam" placeholder="Exam name (e.g. Half-Yearly)">
+      <input id="resSubject" placeholder="Subject">
+      <input id="resMax" type="number" placeholder="Maximum marks" value="100">
+      <button id="loadClassRes" class="gold-btn" style="width:100%;">Load Class for Marks Entry</button>
+    </div>
+    <div id="resList"></div>
+    <button id="saveResBtn" class="gold-btn" style="width:100%; margin-top:12px;">Save Results</button>
+    <p id="resMsg" class="msg"></p>`;
+  $('loadClassRes').onclick = loadClassForResults;
+  $('saveResBtn').onclick = saveTeacherResults;
+}
+
+async function loadClassForResults() {
+  const students = await getClassStudents();
+  cache.classStudents = students;
+  $('resList').innerHTML = students.map(s => `
+    <div class="glass card-item row" data-student="${s.id}">
+      <span>${s.rollNo || ''} · ${escapeHtml(s.fullName)}</span>
+      <input type="number" class="marks-input" placeholder="Marks" style="width:90px; margin:0;">
+    </div>`).join('') || '<p class="muted-center">No students in your class.</p>';
+}
+
+async function saveTeacherResults() {
+  const exam = $('resExam').value.trim();
+  const subject = $('resSubject').value.trim();
+  const maxMarks = Number($('resMax').value || 100);
+  if (!exam || !subject) return;
+  const rows = [...document.querySelectorAll('[data-student]')].map(row => {
+    const val = row.querySelector('.marks-input').value;
+    if (val === '') return null;
+    return { studentId: row.dataset.student, marks: Number(val) };
+  }).filter(Boolean);
+  if (!rows.length) return;
+  try {
+    await Promise.all(rows.map(r => setDoc(doc(db, 'results', `${r.studentId}_${exam}_${subject}`), {
+      studentId: r.studentId, schoolCode: profile.schoolCode, classId: profile.classId,
+      exam, subject, maxMarks, marks: r.marks, teacherId: profile.id, createdAt: Date.now()
+    })));
+    $('resMsg').textContent = 'Results saved ✓'; $('resMsg').className = 'msg ok';
+  } catch (e) { $('resMsg').textContent = e.message; $('resMsg').className = 'msg err'; }
+}
+
+// ================= ADMIN: OVERVIEW =================
+async function renderAdminOverview() {
+  $('mainArea').innerHTML = `<div class="stat-grid">
+    <div class="glass stat-box"><div class="stat-num" id="cStudents">—</div><div class="stat-label">Students</div></div>
+    <div class="glass stat-box"><div class="stat-num" id="cTeachers">—</div><div class="stat-label">Teachers</div></div>
+    <div class="glass stat-box"><div class="stat-num" id="cClasses">—</div><div class="stat-label">Classes</div></div>
+  </div>`;
+  const [sQ, tQ] = await Promise.all([
+    getDocs(query(collection(db,'profiles'), where('role','==','student'), where('schoolCode','==',profile.schoolCode))),
+    getDocs(query(collection(db,'profiles'), where('role','==','teacher'), where('schoolCode','==',profile.schoolCode)))
+  ]);
+  $('cStudents').textContent = sQ.size;
+  $('cTeachers').textContent = tQ.size;
+  $('cClasses').textContent = classesCache.length;
+}
+// (Admin count intentionally left off the overview grid to keep it to 3 tiles; see Admins tab for the full list.)
+
+// ================= ADMIN: CLASSES =================
+async function renderAdminClasses() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item grid-2" style="margin-bottom:16px;">
+      <input id="clsName" placeholder="Class (e.g. IX)">
+      <input id="clsSection" placeholder="Section (e.g. A)">
+      <button id="addClassBtn" class="gold-btn" style="grid-column:span 2;">Add Class</button>
+    </div>
+    <div id="classList"></div>`;
+  $('addClassBtn').onclick = async () => {
+    const className = $('clsName').value.trim(), section = $('clsSection').value.trim();
+    if (!className) return;
+    await addDoc(collection(db, 'classes'), { schoolCode: profile.schoolCode, className, section, createdAt: Date.now() });
+    $('clsName').value = ''; $('clsSection').value = '';
+    await loadClasses(); renderAdminClasses();
+  };
+  $('classList').innerHTML = classesCache.map(c => `<div class="glass card-item">${classLabel(c)}</div>`).join('') || '<p class="muted-center">No classes yet.</p>';
+}
+
+// ================= ADMIN: STUDENTS =================
+async function renderAdminStudents() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="margin-bottom:16px;">
+      <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:8px;">Creates a real login + ERP profile for the student.</p>
+      <input id="sName" placeholder="Full Name">
+      <input id="sRoll" placeholder="Roll Number">
+      <select id="sClass">${classOptions()}</select>
+      <div style="display:flex; gap:8px;">
+        <input id="sLoginId" placeholder="Login ID" style="flex:1;">
+        <button id="sSuggestBtn" type="button" class="menu-btn" style="width:auto;">Suggest</button>
+      </div>
+      <input id="sPass" type="password" placeholder="Temporary Password (6+ chars)">
+      <button id="addStudentBtn" class="gold-btn" style="width:100%;">Create Student</button>
+      <p id="sMsg" class="msg"></p>
+    </div>
+    <div id="studentList"></div>`;
+  $('sSuggestBtn').onclick = async () => { $('sLoginId').value = await suggestLoginId('student'); };
+  $('addStudentBtn').onclick = () => createSchoolUser('student');
+  loadStudentsList();
+}
+
+async function loadStudentsList() {
+  const q = await getDocs(query(collection(db,'profiles'), where('role','==','student'), where('schoolCode','==',profile.schoolCode)));
+  const students = q.docs.map(d => d.data());
+  $('studentList').innerHTML = students.map(s => `
+    <div class="glass card-item row"><span>${escapeHtml(s.fullName)} · Roll ${s.rollNo || '-'}</span><span style="color:rgba(255,255,255,0.4);">${s.loginId || ''} · ${s.className || ''}${s.section ? '-'+s.section : ''}</span></div>
+  `).join('') || '<p class="muted-center">No students yet.</p>';
+}
+
+// ================= ADMIN: TEACHERS =================
+async function renderAdminTeachers() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="margin-bottom:16px;">
+      <input id="tName" placeholder="Full Name">
+      <input id="tSubject" placeholder="Subject">
+      <select id="tClass">${classOptions()}</select>
+      <div style="display:flex; gap:8px;">
+        <input id="tLoginId" placeholder="Login ID" style="flex:1;">
+        <button id="tSuggestBtn" type="button" class="menu-btn" style="width:auto;">Suggest</button>
+      </div>
+      <input id="tPass" type="password" placeholder="Temporary Password (6+ chars)">
+      <button id="addTeacherBtn" class="gold-btn" style="width:100%;">Create Teacher</button>
+      <p id="tMsg" class="msg"></p>
+    </div>
+    <div id="teacherList"></div>`;
+  $('tSuggestBtn').onclick = async () => { $('tLoginId').value = await suggestLoginId('teacher'); };
+  $('addTeacherBtn').onclick = () => createSchoolUser('teacher');
+  loadTeachersList();
+}
+
+async function loadTeachersList() {
+  const q = await getDocs(query(collection(db,'profiles'), where('role','==','teacher'), where('schoolCode','==',profile.schoolCode)));
+  const teachers = q.docs.map(d => d.data());
+  $('teacherList').innerHTML = teachers.map(t => `
+    <div class="glass card-item row"><span>${escapeHtml(t.fullName)}</span><span style="color:rgba(255,255,255,0.4);">${t.loginId || ''} · ${t.subject || ''}</span></div>
+  `).join('') || '<p class="muted-center">No teachers yet.</p>';
+}
+
+// ================= ADMIN: ADMINS =================
+async function renderAdminAdmins() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item" style="margin-bottom:16px;">
+      <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:8px;">Give another staff member admin access to this school.</p>
+      <input id="aName" placeholder="Full Name">
+      <div style="display:flex; gap:8px;">
+        <input id="aLoginId" placeholder="Login ID" style="flex:1;">
+        <button id="aSuggestBtn" type="button" class="menu-btn" style="width:auto;">Suggest</button>
+      </div>
+      <input id="aPass" type="password" placeholder="Temporary Password (6+ chars)">
+      <button id="addAdminBtn" class="gold-btn" style="width:100%;">Create Admin</button>
+      <p id="aMsg" class="msg"></p>
+    </div>
+    <div id="adminList"></div>`;
+  $('aSuggestBtn').onclick = async () => { $('aLoginId').value = await suggestLoginId('admin'); };
+  $('addAdminBtn').onclick = () => createSchoolUser('admin');
+  loadAdminsList();
+}
+
+async function loadAdminsList() {
+  const q = await getDocs(query(collection(db,'profiles'), where('role','==','admin'), where('schoolCode','==',profile.schoolCode)));
+  const admins = q.docs.map(d => d.data());
+  $('adminList').innerHTML = admins.map(a => `
+    <div class="glass card-item row"><span>${escapeHtml(a.fullName)}</span><span style="color:rgba(255,255,255,0.4);">${a.loginId || ''}</span></div>
+  `).join('') || '<p class="muted-center">No other admins yet.</p>';
+}
+
+async function createSchoolUser(kind) {
+  const prefix = kind === 'student' ? 's' : (kind === 'teacher' ? 't' : 'a');
+  const name = $(`${prefix}Name`).value.trim();
+  const loginId = $(`${prefix}LoginId`).value.trim();
+  const pass = $(`${prefix}Pass`).value;
+  const classId = kind !== 'admin' ? $(`${prefix}Class`).value : null;
+  const msgEl = $(`${prefix}Msg`);
+  if (!name || !loginId || pass.length < 6 || (kind !== 'admin' && !classId)) {
+    msgEl.textContent = 'Fill all fields; password must be 6+ characters.'; msgEl.className = 'msg err'; return;
+  }
+  const dupQ = await getDocs(query(collection(db,'profiles'), where('schoolCode','==',profile.schoolCode), where('loginId','==',loginId)));
+  if (!dupQ.empty) { msgEl.textContent = 'This Login ID is already used. Choose another.'; msgEl.className = 'msg err'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, loginEmail(profile.schoolCode, loginId), pass);
+    const cls = kind !== 'admin' ? classesCache.find(c => c.id === classId) : null;
+    const extra = kind === 'student' ? { rollNo: $('sRoll').value.trim() } : (kind === 'teacher' ? { subject: $('tSubject').value.trim() } : {});
+    await setDoc(doc(db, 'profiles', cred.user.uid), {
+      fullName: name, loginId, role: kind, schoolCode: profile.schoolCode,
+      ...(kind !== 'admin' ? { classId, className: cls?.className, section: cls?.section } : {}),
+      ...extra, createdAt: Date.now()
+    });
+    await signOut(secondaryAuth);
+    msgEl.textContent = `${KIND_LABEL[kind]} created ✓ — share Login ID "${loginId}" and the password with them.`; msgEl.className = 'msg ok';
+    if (kind === 'student') { $('sName').value=''; $('sRoll').value=''; $('sLoginId').value=''; $('sPass').value=''; loadStudentsList(); }
+    else if (kind === 'teacher') { $('tName').value=''; $('tSubject').value=''; $('tLoginId').value=''; $('tPass').value=''; loadTeachersList(); }
+    else { $('aName').value=''; $('aLoginId').value=''; $('aPass').value=''; loadAdminsList(); }
+  } catch (e) {
+    msgEl.textContent = friendlyAuthError(e); msgEl.className = 'msg err';
+  }
+}
+
+// ================= ADMIN: FEE STRUCTURE =================
+async function renderAdminFees() {
+  $('mainArea').innerHTML = `
+    <div class="glass card-item grid-2" style="margin-bottom:16px;">
+      <select id="feeClass" style="grid-column:span 2;">${classOptions()}</select>
+      <input id="feeHead" placeholder="Fee Head (e.g. Tuition)">
+      <input id="feeAmount" type="number" placeholder="Amount">
+      <input id="feeTerm" placeholder="Term (e.g. Q1, Annual)" style="grid-column:span 2;">
+      <button id="addFeeBtn" class="gold-btn" style="grid-column:span 2;">Add Fee Head</button>
+    </div>
+    <div id="feeStructList"></div>`;
+  $('addFeeBtn').onclick = async () => {
+    const classId = $('feeClass').value, head = $('feeHead').value.trim(), amount = Number($('feeAmount').value), term = $('feeTerm').value.trim();
+    if (!head || !amount) return;
+    await addDoc(collection(db, 'feeStructure'), { schoolCode: profile.schoolCode, classId, head, amount, term, createdAt: Date.now() });
+    $('feeHead').value=''; $('feeAmount').value=''; $('feeTerm').value='';
+    loadFeeStructures();
+  };
+  loadFeeStructures();
+}
+
+async function loadFeeStructures() {
+  const q = await getDocs(query(collection(db,'feeStructure'), where('schoolCode','==',profile.schoolCode)));
+  const rows = q.docs.map(d => d.data());
+  $('feeStructList').innerHTML = rows.map(f => {
+    const c = classesCache.find(cl => cl.id === f.classId);
+    return `<div class="glass card-item row"><span>${escapeHtml(f.head)} · ${classLabel(c)}</span><span style="color:rgba(255,255,255,0.4);">₹${f.amount} · ${f.term || ''}</span></div>`;
+  }).join('') || '<p class="muted-center">No fee heads yet.</p>';
+}
+
+// ---------------- helpers ----------------
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+</script>
+</body>
+</html>
