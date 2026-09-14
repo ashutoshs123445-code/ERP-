@@ -1,0 +1,13 @@
+DJPS ERP — Firebase Edition
+-- This file is intentionally kept as a migration note.
+-- The application uses Firebase Authentication + Cloud Firestore.
+-- Do NOT run the old Supabase SQL schema for this Firebase version.
+--
+-- Required Firestore collections:
+-- profiles/{authUid}: fullName, email, role, schoolCode, classId, className, section, rollNo
+-- classes/{id}: schoolCode, className, section, createdAt
+-- attendance/{studentId_date}: studentId, studentName, classId, schoolCode, date, status, markedBy, createdAt
+-- assignments/{id}: title, description, dueDate, schoolCode, classId, teacherId, createdAt
+-- results/{studentId_exam_subject}: studentId, schoolCode, classId, exam, subject, maxMarks, marks, teacherId, createdAt
+--
+-- Publish firestore.rules in Firebase Console.
